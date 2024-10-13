@@ -3,12 +3,12 @@ import { hightlightsSlides } from "../constants";
 import gsap from "gsap";
 import { pauseImg, playImg, replayImg } from "../utils";
 import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const VideoCarousel = () => {
   const videoRef = useRef([]);
   const videoSpanRef = useRef([]);
   const videoDivRef = useRef([]);
-
   const [video, setVideo] = useState({
     isEnd: false,
     startPlay: false,
@@ -18,7 +18,7 @@ const VideoCarousel = () => {
   });
   const { isEnd, isLastVideo, startPlay, videoId, isPlaying } = video;
   const [loadedData, setLoadedData] = useState([]);
-
+  gsap.registerPlugin(ScrollTrigger);
   useGSAP(() => {
     gsap.to("#slider", {
       transform: `translateX(${-100 * videoId}%)`,
@@ -40,15 +40,6 @@ const VideoCarousel = () => {
       },
     });
   }, [isEnd, videoId]);
-  useEffect(() => {
-    if (loadedData.length > 3) {
-      if (!isPlaying) {
-        videoRef.current[videoId].pause();
-      } else {
-        startPlay && videoRef.current[videoId].play();
-      }
-    }
-  }, [videoId, startPlay, isPlaying, loadedData]);
 
   useEffect(() => {
     let currentProgress = 0;
@@ -106,8 +97,21 @@ const VideoCarousel = () => {
     }
   }, [videoId, startPlay]);
 
+  useEffect(() => {
+    if (loadedData.length > 3) {
+      if (!isPlaying) {
+        videoRef.current[videoId].pause();
+      } else {
+        startPlay && videoRef.current[videoId].play();
+      }
+    }
+  }, [videoId, startPlay, isPlaying, loadedData]);
+
   const handleProcess = (type, i) => {
     switch (type) {
+      case "choose-video":
+        setVideo((pre) => ({ ...pre, videoId: i, isLastVideo: false }));
+        break;
       case "video-end":
         setVideo((pre) => ({ ...pre, isEnd: true, videoId: i + 1 }));
         break;
@@ -142,10 +146,10 @@ const VideoCarousel = () => {
             <div className="video-carousel_container">
               <div className="w-full h-full flex-center rounded-3xl overflow-hidden bg-black">
                 <video
+                  id="video"
                   className={`${
                     item.id == 2 && "translate-x-44"
                   } pointer-events-none`}
-                  id="video"
                   playsInline={true}
                   muted
                   preload="auto"
@@ -184,6 +188,9 @@ const VideoCarousel = () => {
         <div className="flex-center py-5 px-7 bg-gray-300 backdrop-blur rounded-full">
           {videoRef.current.map((_, i) => (
             <span
+              onClick={() => {
+                handleProcess("choose-video", i);
+              }}
               key={i}
               className="mx-2 w-3 h-3 bg-gray-200 rounded-full relative cursor-pointer"
               ref={(el) => (videoDivRef.current[i] = el)}
