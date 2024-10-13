@@ -17,7 +17,7 @@ const ModelView = ({
     <View
       index={index}
       id={gsapType}
-      className={`border-2 border-red-500 w-full h-full ${
+      className={`w-full h-full absolute cursor-grab ${
         index == 2 ? `right-[-100%]` : ``
       }`}
     >

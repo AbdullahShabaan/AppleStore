@@ -1,17 +1,18 @@
 import { useGSAP } from "@gsap/react";
 import ModelView from "./ModelView";
 import gsap from "gsap";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { yellowImg } from "../utils";
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import { View } from "@react-three/drei";
 import { models, sizes } from "../constants";
+import { animateWithGsapTimeline } from "../utils/animations";
 
 const Modal = () => {
   const [size, setSize] = useState("small");
   const [modal, setModal] = useState({
-    title: "iphone 15 pro max in natural titanium",
+    title: "iphone 15 pro in natural titanium",
     color: ["#8F8A81", "#FFE7B9", "#6F6C64"],
     img: yellowImg,
   });
@@ -24,8 +25,24 @@ const Modal = () => {
   const [smallRotation, setSmallRotation] = useState(0);
   const [largeRotation, setLargeRotation] = useState(0);
 
+  const tl = gsap.timeline();
+  useEffect(() => {
+    if (size == "large") {
+      animateWithGsapTimeline(tl, small, smallRotation, "#view1", "#view2", {
+        transform: `translateX(-100%)`,
+        duration: 2,
+      });
+    }
+    if (size == "small") {
+      animateWithGsapTimeline(tl, large, largeRotation, "#view2", "#view1", {
+        transform: `translateX(0)`,
+        duration: 2,
+      });
+    }
+  }, [size]);
+
   useGSAP(() => {
-    gsap.to("#heading", { y: 0, opacity: 1 });
+    gsap.to("#heading", { y: 0, opacity: 1, duration: 1 });
   }, []);
   return (
     <section className="common-padding">
